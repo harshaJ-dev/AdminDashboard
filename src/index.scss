@@ -1,0 +1,62 @@
+@import "bootstrap/scss/bootstrap";
+
+:root {
+    --primary-gradient-start: #ff7e5f;
+    --primary-gradient-end: #feb47b;
+    --sidebar-width: 260px;
+    --card-border-radius: 20px;
+    --bg-color: #fceceb;
+    /* Soft reddish/orange tint for background */
+    --text-main: #2d3436;
+    --text-muted: #636e72;
+}
+
+body {
+    background-color: var(--bg-color);
+    font-family: 'Outfit', sans-serif;
+    /* Assuming a modern rounded font */
+    color: var(--text-main);
+}
+
+// Sidebar Gradient
+.sidebar-gradient {
+    background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
+}
+
+// Custom Card Styling
+.custom-card {
+    border-radius: var(--card-border-radius);
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    background: #ffffff;
+    transition: transform 0.2s;
+}
+
+.custom-card:hover {
+    transform: translateY(-5px);
+}
+
+// Navbar Styling
+.custom-navbar {
+    background: transparent !important;
+}
+
+// Search Input Styling
+.search-input {
+    background-color: #fff;
+    border-radius: 50px;
+    border: none;
+    padding: 10px 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+[data-bs-theme="dark"] {
+    --bg-color: #1e1e2f;
+    --text-main: #ffffff;
+    --text-muted: #aab0c6;
+
+    .custom-card {
+        background: #27293d;
+        color: #fff;
+    }
+}
