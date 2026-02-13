@@ -1,5 +1,10 @@
+
+
 import { useState } from "react";
 import { ChevronDown, ChevronRight, Folder, FileText } from "lucide-react";
+import CreateSectionModal from "../components/CreateSectionModal";
+import ManagePermissionsModal from "../components/ManagePermissionsModal";
+import AddResourceModal from "../components/AddResourceModal";
 
 const sectionsData = [
     {
@@ -20,10 +25,39 @@ const sectionsData = [
 ];
 
 const SectionList = () => {
+    const [sections, setSections] = useState(sectionsData);
     const [expanded, setExpanded] = useState({});
+    const [showModal, setShowModal] = useState(false);
+    const [showPermissionsModal, setShowPermissionsModal] = useState(false);
+    const [showAddResourceModal, setShowAddResourceModal] = useState(false);
+    const [activeSectionId, setActiveSectionId] = useState(null);
+
+    const handleCreateSection = (title) => {
+        const newSection = {
+            id: sections.length + 1,
+            title: title,
+            items: []
+        };
+        setSections([...sections, newSection]);
+    };
 
     const toggleSection = (id) => {
         setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
+    };
+
+    const handleAddResourceClick = (sectionId, e) => {
+        e.stopPropagation(); // prevent toggling section
+        setActiveSectionId(sectionId);
+        setShowAddResourceModal(true);
+    };
+
+    const handleAddResource = (resourceName) => {
+        setSections(sections.map(section => {
+            if (section.id === activeSectionId) {
+                return { ...section, items: [...section.items, resourceName] };
+            }
+            return section;
+        }));
     };
 
     return (
@@ -33,7 +67,7 @@ const SectionList = () => {
             <div className="row">
                 <div className="col-12 col-lg-8">
                     <div className="custom-card p-4">
-                        {sectionsData.map(section => (
+                        {sections.map(section => (
                             <div key={section.id} className="mb-3 border-bottom pb-3 last-border-none">
                                 <div
                                     className="d-flex align-items-center cursor-pointer p-2 rounded hover-bg-light"
@@ -43,7 +77,16 @@ const SectionList = () => {
                                     {expanded[section.id] ? <ChevronDown size={20} className="me-2 text-primary" /> : <ChevronRight size={20} className="me-2 text-muted" />}
                                     <Folder size={20} className="me-3 text-warning" />
                                     <h5 className="mb-0 fw-bold">{section.title}</h5>
-                                    <span className="badge bg-light text-dark ms-auto">{section.items.length} items</span>
+                                    <div className="ms-auto d-flex align-items-center">
+                                        <button
+                                            className="btn btn-sm btn-light me-2 fw-bold text-primary"
+                                            onClick={(e) => handleAddResourceClick(section.id, e)}
+                                            style={{ fontSize: '0.8rem' }}
+                                        >
+                                            + Add
+                                        </button>
+                                        <span className="badge bg-light text-dark">{section.items.length} items</span>
+                                    </div>
                                 </div>
 
                                 {expanded[section.id] && (
@@ -64,11 +107,38 @@ const SectionList = () => {
                 <div className="col-12 col-lg-4">
                     <div className="custom-card p-4 bg-primary text-white">
                         <h5 className="fw-bold mb-3">Quick Actions</h5>
-                        <button className="btn btn-light w-100 mb-2 text-primary fw-bold text-start">Create New Section</button>
-                        <button className="btn btn-outline-light w-100 text-start">Manage Permissions</button>
+                        <button
+                            className="btn btn-light w-100 mb-2 text-primary fw-bold text-start"
+                            onClick={() => setShowModal(true)}
+                        >
+                            Create New Section
+                        </button>
+                        <button
+                            className="btn btn-outline-light w-100 text-start"
+                            onClick={() => setShowPermissionsModal(true)}
+                        >
+                            Manage Permissions
+                        </button>
                     </div>
                 </div>
             </div>
+
+            <CreateSectionModal
+                show={showModal}
+                onHide={() => setShowModal(false)}
+                onCreate={handleCreateSection}
+            />
+
+            <ManagePermissionsModal
+                show={showPermissionsModal}
+                onHide={() => setShowPermissionsModal(false)}
+            />
+
+            <AddResourceModal
+                show={showAddResourceModal}
+                onHide={() => setShowAddResourceModal(false)}
+                onAdd={handleAddResource}
+            />
         </div>
     );
 };

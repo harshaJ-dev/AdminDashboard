@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 const UserTable = ({ data }) => {
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5;
+    const itemsPerPage = 15;
 
     const filteredData = useMemo(() => {
         return data.filter(
@@ -67,8 +67,8 @@ const UserTable = ({ data }) => {
                                         <td>
                                             <span
                                                 className={`badge rounded-pill ${user.status === "Active"
-                                                        ? "bg-success-subtle text-success"
-                                                        : "bg-danger-subtle text-danger"
+                                                    ? "bg-success-subtle text-success"
+                                                    : "bg-danger-subtle text-danger"
                                                     }`}
                                             >
                                                 {user.status}

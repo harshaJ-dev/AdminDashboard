@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
 
 const Calendar = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState(null);
     const [notes, setNotes] = useState([
         { id: 1, text: "Team meeting at 10 AM", date: "2024-02-15" },
         { id: 2, text: "Project deadline review", date: "2024-02-20" },
@@ -21,10 +22,19 @@ const Calendar = () => {
     };
 
     const addNote = () => {
-        if (newNote.trim()) {
-            setNotes([...notes, { id: Date.now(), text: newNote, date: new Date().toISOString().split('T')[0] }]);
+        if (newNote.trim() && selectedDate) {
+            setNotes([...notes, { id: Date.now(), text: newNote, date: selectedDate }]);
             setNewNote("");
         }
+    };
+
+    const handleDateClick = (day) => {
+        const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        setSelectedDate(dateStr);
+    };
+
+    const getNotesForDate = (dateStr) => {
+        return notes.filter(note => note.date === dateStr);
     };
 
     const deleteNote = (id) => {
@@ -37,10 +47,25 @@ const Calendar = () => {
             days.push(<div key={`empty-${i}`} className="text-center py-3"></div>);
         }
         for (let i = 1; i <= daysInMonth; i++) {
+            const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
             const isToday = i === new Date().getDate() && currentDate.getMonth() === new Date().getMonth();
+            const isSelected = dateStr === selectedDate;
+            const hasNotes = getNotesForDate(dateStr).length > 0;
+
             days.push(
-                <div key={i} className={`text-center py-3 rounded cursor-pointer ${isToday ? 'bg-primary text-white fw-bold' : 'hover-bg-light'}`}>
+                <div
+                    key={i}
+                    className={`text-center py-3 rounded cursor-pointer position-relative ${isToday ? 'bg-primary text-white fw-bold' :
+                            isSelected ? 'bg-info text-white' :
+                                'hover-bg-light'
+                        }`}
+                    onClick={() => handleDateClick(i)}
+                    style={{ cursor: 'pointer' }}
+                >
                     {i}
+                    {hasNotes && !isToday && !isSelected && (
+                        <div style={{ position: 'absolute', top: '5px', right: '5px', width: '6px', height: '6px', backgroundColor: '#ff7e5f', borderRadius: '50%' }}></div>
+                    )}
                 </div>
             );
         }
@@ -73,22 +98,26 @@ const Calendar = () => {
                 {/* Notes Section */}
                 <div className="col-12 col-md-4">
                     <div className="custom-card p-4 h-100 bg-light-subtle">
-                        <h5 className="fw-bold mb-3">Quick Notes</h5>
+                        <h5 className="fw-bold mb-3">
+                            {selectedDate ? `Notes for ${new Date(selectedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : 'Select a date'}
+                        </h5>
 
-                        <div className="input-group mb-3">
-                            <input
-                                type="text"
-                                className="form-control border-0 shadow-sm"
-                                placeholder="Add a new note..."
-                                value={newNote}
-                                onChange={(e) => setNewNote(e.target.value)}
-                                onKeyPress={(e) => e.key === 'Enter' && addNote()}
-                            />
-                            <button className="btn btn-primary" onClick={addNote}><Plus size={20} /></button>
-                        </div>
+                        {selectedDate && (
+                            <div className="input-group mb-3">
+                                <input
+                                    type="text"
+                                    className="form-control border-0 shadow-sm"
+                                    placeholder="Add a new note..."
+                                    value={newNote}
+                                    onChange={(e) => setNewNote(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && addNote()}
+                                />
+                                <button className="btn btn-primary" onClick={addNote}><Plus size={20} /></button>
+                            </div>
+                        )}
 
                         <div className="d-flex flex-column gap-2" style={{ maxHeight: '400px', overflowY: 'auto' }}>
-                            {notes.map(note => (
+                            {selectedDate && getNotesForDate(selectedDate).map(note => (
                                 <div key={note.id} className="card border-0 shadow-sm p-3">
                                     <div className="d-flex justify-content-between align-items-start">
                                         <p className="mb-1 small">{note.text}</p>
@@ -99,7 +128,8 @@ const Calendar = () => {
                                     <small className="text-muted" style={{ fontSize: '0.7rem' }}>{note.date}</small>
                                 </div>
                             ))}
-                            {notes.length === 0 && <p className="text-center text-muted small mt-3">No notes yet.</p>}
+                            {selectedDate && getNotesForDate(selectedDate).length === 0 && <p className="text-center text-muted small mt-3">No notes for this date.</p>}
+                            {!selectedDate && <p className="text-center text-muted small mt-3">Click a date to view or add notes.</p>}
                         </div>
                     </div>
                 </div>
